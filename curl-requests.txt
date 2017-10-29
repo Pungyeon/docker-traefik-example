@@ -1,0 +1,4 @@
+curl -X GET http://localhost:3000/show_all
+
+curl -X POST http://localhost:3000/create_person -d "name": "Lasse","age": 27}'
+

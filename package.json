@@ -1,0 +1,23 @@
+{
+  "name": "docker-compose-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pungyeon/docker-compose-example.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pungyeon/docker-compose-example/issues"
+  },
+  "homepage": "https://github.com/Pungyeon/docker-compose-example#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "mongoose": "^4.12.4"
+  }
+}

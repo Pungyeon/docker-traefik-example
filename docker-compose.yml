@@ -1,0 +1,10 @@
+web:
+  build: .
+  links: 
+    - mongodb
+  ports:
+    - "27017"
+    - "3000"
+
+mongodb:
+  image: mongo:latest
