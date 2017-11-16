@@ -5,12 +5,12 @@ var app = express();
 // MongoDB inserts start
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-var connectionString = 'mongodb://localhost/people';
 
 mongoose.connect(connectionString, { useMongoClient: true });
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
+var connectionString = 'mongodb://mongo/people';
 var db = mongoose.connection;
 
 var Schema = mongoose.Schema;

@@ -47,72 +47,92 @@ So, first things first, we will edit out already existing NodeJS server code to 
 ```javascript
 var express = require('express');
 var fs = require('fs');
-
 var app = express();
+
+// MongoDB inserts start
+var mongoose = require('mongoose');
+var bodyParser = require('body-parser');
+var connectionString = 'mongodb://mongo/people';
+
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+
+mongoose.connect(connectionString, { useMongoClient: true });
+var db = mongoose.connection;
+
+var Schema = mongoose.Schema;
+
+var PersonSchema = new Schema({
+    name: String,
+    age: Number,
+});
+
+var PersonModel = mongoose.model('PersonModel', PersonSchema);
+// MongoDB inserts stop
 
 app.get('/', function(req, res) {
     var indexFile = fs.readFileSync('./index.html');
     res.end(indexFile);
 });
 
+// new request functions
+app.post('/create_person', function(req, res) {
+    var person = {
+        name: req.body.name,
+        age: req.body.age
+    };
+    PersonModel.create(person, function(err, data) {
+        if (err) return res.json({Error: "could not create new person.", details: err});
+        res.json(person);
+    });
+});
+
+app.get('/show_all', function(req, res) {
+    PersonModel.find({}, function(err, data) {
+        if (err) return res.json({Error: "Error: could not communicate with database.", details: err});
+        res.json(data);
+    });
+});
+// new request functions
+
 app.listen(3000);
 
 console.log("Server listening on port 3000");
 ```
-Basically, this loads up 'express' and 'fs' modules. Express is a easy way to write web-servers in nodejs, and fs is the default library for interacting with the filesystem. with 'app.get' we specify what should happen on the url '/' (so in our case 'https://localhost:3000') and finally we tell our server to listen on port 3000 and write to our console that this is what our server is listening on port 3000.
+What we have added is the 'mongoose' library, which as mentioned previously, is to create our database connection. This is what we achieve with the `connectionString` variable which we use to connect and store the connection in our `db` variable. Note, that the connection string is not to 'localhost:27017' (or similar), but simply to 'mongo'. This will be explained later.
 
-We will also create an index.html file, which will be a very simple html file printing out "Hello World!"
+We then go on to define a model for our database. This is just a simple database model, specifying that a Person in our database will simply contain a name and their age. 
 
-> index.html
-```html
-<p>Hello World!</p>
+Finally, we create our to new REST endpoint:
+    '/show_all': which returns all of our stored users in our database.
+    '/create_person': which will take `name` and `age` as inputs in our post body and insert them as a new  Person in our database.
+
+
+
+### Putting it together with Docker Compose
+
+Now that we have updated our server, we could essentially run this on a machine that had nodejs and mongodb installed, or setup two different servers, one with nodejs and one with mongodb. Either way we would have to change the connectionString either to a static string or pointing at some DNS record or load balancer.
+
+However! With docker, there is a better way. Docker Compose. With docker compose, we define a file which can bundle together many different container images as part of a build. So, we can predefine the dependencies for our application and ensure that these dependencies are spun up. In our case, we know that we need both nodejs and mongodb. 
+
+This is a simple docker compose file, which will start both a `web` server (our nodejs container we defined in my previous post) and a standard mongodb container.
+
+``` yml
+version: "2"
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    links:
+      - mongo
+  mongo:
+    image: mongo
+    volumes:
+      - /data/db
+    ports:
+      - "27017:27017"
 ```
-
-Now we can run our server with: `npm start`, which will respond with a 'Server listening on port 3000'. Furthermore, you can direct a browser to http://localhost:3000 and see your 'Hello World' message, which we put in the index.html file. 
-
-### Containerising with Docker
-
-If all goes well, we can now create our Dockerfile, for building our nodejs docker container. This file will look like this: 
-
-``` dockerfile
-FROM node:latest
-RUN mkdir -p /src/app
-WORKDIR /src/app
-COPY package.json /src/app/package.json
-RUN npm install
-COPY . /src/app
-EXPOSE 3000
-CMD [ "npm", "start" ]
-```
-
-In this file, we are telling docker to use the base image node:lastest, which is a nodejs base image. In this container, we will create a new folder /src/app and making it the working directory for the rest of our Dockerfile. We will copy our package.json file and run npm install, to ensure that we have the right packages and modules installed for our nodejs server. Then we will copy everything in our project folder to this new working directory and expose port 3000 on the container. Finally, we will run the server with npm start.
-
-Now this looks great and all, but we have one small issue. We are copying the node_modules folder into the docker container, after having run npm install, which retrieves\installs all the necessary packages into a node_modules folder of it's own. So, to avoid this unecessary action, we will make a .dockerignore file, which will contain what to ignore, when copying the files to our container:
-
-> .dockerignore
-``` html
-node_modules
-```
-
-Now we can build our docker container! :clap:
-
-> docker build -t my-nodejs-server .
-
-The '-t' parameters specifies a friendly name for our image, which we can re-use to run the container, once docker is finished building, we can see all our available local images with the `docker ps` command. To run our newly built container, we will use the command:
-
-> docker run -d --name node-server -p 3000:3000 my-nodejs-server
-
-Again, the `-p 3000:3000` specifying which ports to expose. We can make sure that our container is running as expected, using the ps command, which will list all our running containers: 
-
-> docker ps
-
-Now, finally to test that everything is working as expected, we can use a browser to test that indeed our nodejs server is working as expected on http://localhost:3000, returnning 'Hello World!'.
-
-Of course, we can also use curl, to do the same.
-
-> curl http://localhost:3000
-
-That's that! So easy, huh? So there is no excuse not to be containerising all your applications and start practicing and eventually deploying with docker containers. 
 
 To learn more about docker and containerisation, I suggest the following sites: 
 
