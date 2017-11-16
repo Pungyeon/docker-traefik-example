@@ -6,11 +6,11 @@ var app = express();
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 
-mongoose.connect(connectionString, { useMongoClient: true });
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 var connectionString = 'mongodb://mongo/people';
+mongoose.connect(connectionString, { useMongoClient: true });
 var db = mongoose.connection;
 
 var Schema = mongoose.Schema;

@@ -5,10 +5,14 @@ services:
     ports:
       - "3000:3000"
     links:
-      - mongo
+      - mongo:mongo
   mongo:
     image: mongo
-    volumes:
-      - /data/db
+    volumes_from:
+      - mongodata
     ports:
       - "27017:27017"
+  mongodata:
+    image: tianon/true
+    volumes:
+      - /data/db
