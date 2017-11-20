@@ -6,11 +6,11 @@ var app = express();
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 
+var connectionString = 'mongodb://mongo/people';
 mongoose.connect(connectionString, { useMongoClient: true });
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
-var connectionString = 'mongodb://mongo/people';
 var db = mongoose.connection;
 
 var Schema = mongoose.Schema;
@@ -26,6 +26,16 @@ var PersonModel = mongoose.model('PersonModel', PersonSchema);
 app.get('/', function(req, res) {
     var indexFile = fs.readFileSync('./index.html');
     res.end(indexFile);
+});
+
+app.get('/file', function(req, res) {
+    fs.writeFileSync('/datavolume/test.txt', "alksjflaksdjflksldfkjsdf");
+    res.end("OK");
+});
+
+app.get('/read', function(req, res) {
+    var result = fs.readdirSync('/datavolume');
+    res.json(result);
 });
 
 // new request functions
