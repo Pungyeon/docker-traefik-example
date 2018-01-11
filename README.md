@@ -130,9 +130,11 @@ Thanks for reading!
 To learn more about docker and containerisation, I suggest the following sites: 
 
 https://www.katacoda.com - Interactive lessons for Docker, kubernetes and much more!
+
 https://www.docker.com/ - The official Docker website, with good documentation, as well as a sandbox environment for practicing docker.
 
-To learn something about container orchestration, I suggets:
+To learn something about container orchestration, I suggest:
+
 https://kubernetes.io - Google's conatiner orchestration platform
 
 ...and to find more tools for containers, like traefik, I suggest:
