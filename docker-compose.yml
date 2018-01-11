@@ -1,31 +1,15 @@
 version: "2"
 services:
+  traefik:
+    image: traefik
+    command: --web --docker --docker.domain=docker.localhost --logLevel=DEBUG
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
   web:
     build: .
-    ports:
-      - "3000:3000"
-    links:
-<<<<<<< HEAD
-      - mongo
-    volumes_from:
-      - datastore
-=======
-      - mongo:mongo
->>>>>>> 55c34164f74e7366c58c969fb0a3938063420c6c
-  mongo:
-    image: mongo
-    volumes_from:
-      - mongodata
-    ports:
-      - "27017:27017"
-<<<<<<< HEAD
-  datastore:
-    image: tianon/true
-    volumes:
-      - /datavolume
-=======
-  mongodata:
-    image: tianon/true
-    volumes:
-      - /data/db
->>>>>>> 55c34164f74e7366c58c969fb0a3938063420c6c
+    
