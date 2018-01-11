@@ -11,4 +11,7 @@ services:
       - /dev/null:/traefik.toml
   web:
     build: .
+    labels:
+      - "traefik.backend=webserver"
+      - "traefik.frontend.rule=Host:web.pungy.local"
     

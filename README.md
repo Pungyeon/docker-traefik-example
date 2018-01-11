@@ -81,13 +81,17 @@ services:
       - /dev/null:/traefik.toml
   web:
     build: .
+    labels:
+      - "traefik.backend=webserver"
+      - "traefik.frontend.rule=Host:web.pungy.local"
+    
 ```
 
-For traefik, we will define the image traefik, which will be pulled from the traefik docker repository. The command will specify the runtime commands for traefik, the most important one here being the `--docker.domain` which will determine the hostnames for our containers. By default, the hostname will be the container name prepended to the domain name specified in this command. So in our case, our `web` server, will become `web.docker.localhost`. 
+For traefik, we will define the image traefik, which will be pulled from the traefik docker repository. The command will specify the runtime commands for traefik, the most important one here being the `--docker.domain` which will determine the default hostnames for our containers. So in this case, the deafult hostname will be the container name prepended to the domain name specified in this command (In our case, our `traefik` server, will become something similar to `traefik.dockerexample.docker.localhost`). 
 
 Under ports we will specify which ports to expose and what they are mapped to on the host. We will expose port 80 for communicating with our web server through HTTP and port 8080 for communicating with the traefik dashboard. Under volumes, we can define some persistent volumes for the container (Essentially, these are folders on the host running the docker containers that ensure if we stop and start the docker container, we won't lose previous data).
 
-Lastly, we will define our `web` service. For the build, we will use the Dockerfile we defined in my last post, by referring to the current path with `.`. 
+Lastly, we will define our `web` service. For the build, we will use the Dockerfile we defined in my last post, by referring to the current path with `.`. We will also add some labels to this service: `traefik-backend` determines how the service is defined in traefik (on the backend) and `traefik.frontend.rule` essentially overrides our default hostname, with a specific hostname. In this case, I have named our web service `web.pungy.local`.
 
 ### Running our setup
 
@@ -99,9 +103,9 @@ This will download the `traefik` image to our host and build our web server, usi
 
 > docker-compose run -d 
 
-The `-d` flag ensuring that we will run the services in the background. Now, we can visit our traefik dashboard at http://localhost:8080 and have a look at our running containers. On the bottom of the dashboard, you will be able to see a routing rule for our web server, with a host name similar to `Host:web.dockerexample.docker.localhost`. This is the hostname that our webserver has received from our traefik reverse-proxy. To ensure that everything is working, let's send off a request!
+The `-d` flag ensuring that we will run the services in the background. Now, we can visit our traefik dashboard at http://localhost:8080 and have a look at our running containers. On the bottom of the dashboard, you will be able to see a routing rule for our web server, with a host name similar to `Host:web.pungy.local`. This is the hostname that our webserver has received from our traefik reverse-proxy. To ensure that everything is working, let's send off a request!
 
-> curl -H Host:web.dockercomposeexample.docker.localhost http://localhost
+> curl -H Host:web.pungy.local http://localhost
 
 ```
 Note: that the -H tag adds headers. In this case we have added a Host header, with the hostname defined in traefik. This can be substituted with a DNS or /etc/hosts entry.
@@ -113,7 +117,7 @@ If all goes well, we will receive a response including the hostname and ip-addre
 
 The command above will ensure that we have three concurrent web services running. In other words, this will add 2 running web servers to our running config. You can check out your traefik dashboard and confirm that this is the case. Traefik will now load-balance our requests to these three servers, without us having to change any configs, traefik takes care of updating it's routes by retrieving information about changes from docker and responding to this information by changing the route configuraitons accordingly. We can confirm that our load-balancing is working by sending a few of our requests again.
 
-> curl -H Host:web.dockercomposeexample.docker.localhost http://localhost
+> curl -H Host:web.pungy.local http://localhost
 
 If all is well, we will see differing requests, depending on which hosts are responding to our requests.
 
@@ -127,7 +131,9 @@ Maybe that will be the topic of the next post, either way, I hope that this post
 
 Thanks for reading!
 
-To learn more about docker and containerisation, I suggest the following sites: 
+To learn more about docker and containerisation, I suggest the following sites:
+
+https://traefik.io/ - I only covered the very basics of this tool, go visit their website to see more of traefik in action!
 
 https://www.katacoda.com - Interactive lessons for Docker, kubernetes and much more!
 
