@@ -1,6 +1,6 @@
 ### Traefik
 
-So, last week we spoke about how to containerise a NodeJS application with Docker. 
+So, in my last post (https://github.com/Pungyeon/docker-example) I wrote about docker and containerisation, using a NodeJS web app as an example of how easy it is to containerise an application. In this post, I will talk a little about how 
 
 ### Prerequisites
 
