@@ -41,7 +41,7 @@ Great, now we are all setup to start writing some code. If you prefer not writin
 
 So, first things first, we will edit our already existing NodeJS server code to add some database functionality.
 
-> 'server.js'
+#### server.js
 ```javascript
 var express = require('express');
 var fs = require('fs');
@@ -67,7 +67,7 @@ So, all we have changed in our server file is that we have imported the 'os' var
 
 The reason why we want to have our server responding with host information, is because of what we will do next. We will write a docker-compose file, which essentially is a build file, which can specify multiple docker images. As an example, you can spin up a web server, database and a backend server with the same docker-compose file. However, for our example we will suffice with defining a load-balancer/reverse-proxy, traefik, and our web server.
 
-``` yml
+```yaml
 version: "2"
 services:
   traefik:
@@ -107,9 +107,7 @@ The `-d` flag ensuring that we will run the services in the background. Now, we 
 
 > curl -H Host:web.pungy.local http://localhost
 
-```
-Note: that the -H tag adds headers. In this case we have added a Host header, with the hostname defined in traefik. This can be substituted with a DNS or /etc/hosts entry.
-```
+> Note: that the -H tag adds headers. In this case we have added a Host header, with the hostname defined in traefik. This can be substituted with a DNS or /etc/hosts entry.
 
 If all goes well, we will receive a response including the hostname and ip-address of our web server container. So, you might be thinking: "I'm pretty sure we were able to do this without the docker-compose file and the traefik reverse-proxy. Why did we go through all that?". Well, let's imagine that our web service has become extremely popular and it's receiving more requests than single-core nodejs can handle. No problem!
 
